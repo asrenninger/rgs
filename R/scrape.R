@@ -6,7 +6,7 @@
 ## packages
 
 ## load lsit
-videos <- read_csv("videos.csv")
+videos <- read_csv("videos_new.csv")
 
 ## load old data
 captions <- read_csv("captions_new.csv")
