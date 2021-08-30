@@ -4,6 +4,7 @@
 ##################################
 
 ## packages
+library(tidyverse)
 
 ## load lsit
 videos <- read_csv("videos_new.csv")
