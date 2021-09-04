@@ -7,7 +7,10 @@
 library(tidyverse)
 library(gt)
 library(tidytext)
-library(NLTK)
+library(tm)
+library(widyr)
+library(sf)
+library(glue)
 
 
 ## palette
@@ -34,18 +37,23 @@ tibble(activity = c("sex", "socializing", "relaxing", "praying", "eating", "exer
   gtsave("happiness.png", expand = 10)
 
 ## load in corpus
-corpus <- 
-  bind_rows(read_csv("data/captions_old.csv"),  
-            read_csv("data/captions_new.csv") %>% 
-              filter(!str_detect(text, "\\[*\\]")) %>%
+new_stops <- filter(stop_words, !str_detect(word, "want|need|like|love"))
+  
+videos <- 
+  bind_rows(read_csv("data/videos_old.csv"),
+            read_csv("data/videos_new.csv")) %>% 
+  select(-date, -captions)
+  
+corpus_line <-
+  bind_rows(read_csv("data/captions_old.csv"),
+            read_csv("data/captions_new.csv")) %>%
+  mutate(text = str_to_lower(text))
+  
+corpus_tidy <- 
+  bind_rows(read_csv("data/words_old.csv"),  
+            read_csv("data/words_new.csv") %>% 
+              filter(!str_detect(text, "\\[.*?\\]")) %>%
               unnest_tokens(word, text) %>% 
-              anti_join(stop_words))
-
-## names data
-names <- 
-  read_csv("https://raw.githubusercontent.com/hadley/data-baby-names/master/baby-names.csv") %>%
-  mutate(name = tolower(name)) %>%
-  filter(name)
-  rename(word = name)
-
+              anti_join(stop_words)) %>% 
+  left_join(videos)
 
